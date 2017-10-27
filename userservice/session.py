@@ -5,7 +5,6 @@ from mongoConnection import getClient
 app = Flask(__name__)
 
 @app.route('/userservice/api/v1.0/session/<string:sessionid>', methods=['GET'])
-
 def getSession(sessionid):
 	db = getClient()
 	cursor = db['hrservice']

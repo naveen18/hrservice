@@ -12,9 +12,11 @@ from sklearn import svm
 from sklearn.linear_model import perceptron
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
+from config.configparser import getConfig
 import pydotplus
 import numpy as np
 
+model = None
 
 def get_labels():
 	return ["satisfaction_level","last_evaluation","number_project","average_monthly_hours",\
@@ -23,8 +25,9 @@ def get_labels():
 	"from_management_dept", "from_support_dept", "has_low_salary", "has_medium_salary", "has_high_salary"]
 
 def readData():
-	data = pd.read_csv("HR_comma_sep.csv")
+	data = pd.read_csv(getConfig("file_path"))
 	return data;
+
 
 def processData(data):
 	Y = data["left"]
@@ -49,8 +52,6 @@ def processData(data):
 	data = data.drop('salary', 1)
 	data = data.drop('sales', 1)
 	data = data.values.tolist()
-	#feature scaling
-	data = preprocessing.scale(data)
 	result = train_test_split(data, Y, test_size=0.20, random_state=0)
 	return result
 
@@ -106,11 +107,13 @@ def run_perceptron(x_train, x_test, y_train, y_test):
 	print("perceptron: %.15f" % scores.mean())
 
 
-def run_random_forest(x_train, x_test, y_train, y_test):
+def run_random_forest(x_train, x_test, y_train, y_test, return_model = False):
 	clf = RandomForestClassifier(n_estimators=10)
 	clf.fit(x_train, y_train)
 	scores = cross_val_score(clf, x_test, y_test, cv=5)
 	print("random_forest: %.15f" % scores.mean())
+	if return_model == True:
+		return clf
 
 def run_svm(x_train, x_test, y_train, y_test):
 	clf = svm.SVC()
@@ -131,6 +134,19 @@ def run_pca(x_train, x_test, y_train, y_test, n_components=2, to_generate_graph 
 		generate_graph(x_train_new, y_train, 'employee.png', 'PCA(2) plot of Voice dataset', "x", "y")
 
 	return x_train_new, x_test_new
+
+def predict(args):
+	global model
+	if model is None:
+		data = readData()
+		x_train, x_test, y_train, y_test = processData(data)
+		"training model"
+		model = run_random_forest(x_train, x_test, y_train, y_test, return_model = True)
+	args = np.array(args)
+	args = args.astype(np.float)
+	args.reshape(1,-1)
+	Y = model.predict([args])
+	return Y[0]
 
 if __name__ == '__main__':
 	data = readData()
