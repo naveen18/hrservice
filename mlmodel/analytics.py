@@ -1,3 +1,4 @@
+import sys
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,15 +8,17 @@ from sklearn.cluster import KMeans
 from config.configparser import getConfig
 
 def readData():
-	data = pd.read_csv(getConfig("file_path"))
+	conf = getConfig()
+	data = pd.read_csv(conf.file_path)
 	return data;
 
 def generateVisualisations():
 	print("generating visualization")
-	image_dir = getConfig("project_directory") + "/mlmodel/visualizations/"
+	conf = getConfig()
+	image_dir = conf.project_directory + "/mlmodel/visualizations/"
 	data = readData()
 	corr = data.corr()
-	sns.heatmap(corr, xticklabels=corr.columns.values, yticklabels=corr.columns.values)
+	sns.heatmap(corr, xticklabels=corr.columns.values, yticklabels=corr.columns.values, cmap=sns.diverging_palette(220, 10, as_cmap=True))
 	plt.yticks(rotation=0)
 	plt.xticks(rotation=90)
 	plt.subplots_adjust(left=0.25, right=0.9, top=0.9, bottom=0.34)
@@ -32,24 +35,24 @@ def generateVisualisations():
 	plt.savefig(image_dir + 'distributions1.png')
 
 	fig, axes = plt.subplots(ncols=2, figsize=(12, 6))
-	sns.distplot(data.average_montly_hours, kde=False, color="b", ax=axes[0]).set_title('Employee Average Monthly Hours Distribution')
+	sns.distplot(data.average_montly_hours, kde=False, color="b", ax=axes[0]).set_title('Average Monthly Hours spent by employee Distribution')
 	axes[0].set_ylabel('Employee Count')
 
-	sns.distplot(data.time_spend_company, kde=False, color="b", ax=axes[1]).set_title('Employee Time Spent At Company Distribution')
+	sns.distplot(data.time_spend_company, kde=False, color="b", ax=axes[1]).set_title('Time Spent by employee at Company Distribution')
 	axes[1].set_ylabel('Employee Count')
 	plt.tight_layout(True)
 	plt.savefig(image_dir + 'distributions2.png')
 
 	fig, ax = plt.subplots(figsize=(12, 6))
-	sns.countplot(y="salary", hue='left', data=data, color = [145/255, 176/255, 47/255]).set_title('Employee Salary Turnover Distribution');
+	sns.countplot(y="salary", hue='left', data=data, color = [145/255, 176/255, 47/255]).set_title('Employee Salary, Employee Left Distribution');
 	plt.savefig(image_dir + 'distributions3.png')
 
 	fig, ax = plt.subplots(figsize=(12, 6))
-	sns.countplot(y="sales", hue='left', data=data, color = [155/255, 149/255, 78/255]).set_title('Employee Department Turnover Distribution');
+	sns.countplot(y="sales", hue='left', data=data, color = [155/255, 149/255, 78/255]).set_title('Employee Department, Employee Left Distribution');
 	plt.savefig(image_dir + 'distributions4.png')
 
 	fig, ax = plt.subplots(figsize=(12, 6))
-	sns.countplot(x="number_project", hue="left", data=data, color=[63/255, 60/255, 89/255])
+	sns.countplot(x="number_project", hue="left", data=data, color=[63/255, 60/255, 89/255]).set_title('Number of Project, Employee Left Distribution');
 	plt.savefig(image_dir + 'distributions5.png')
 
 	kmeans = KMeans(n_clusters=3,random_state=2)

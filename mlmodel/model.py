@@ -1,3 +1,4 @@
+import sys
 import pandas as pd
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
@@ -25,7 +26,8 @@ def get_labels():
 	"from_management_dept", "from_support_dept", "has_low_salary", "has_medium_salary", "has_high_salary"]
 
 def readData():
-	data = pd.read_csv(getConfig("file_path"))
+	conf = getConfig()
+	data = pd.read_csv(conf.file_path)
 	return data;
 
 

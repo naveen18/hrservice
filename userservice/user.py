@@ -1,8 +1,8 @@
 #!flask/bin/python
 
 import sys
-sys.path.append("/Users/naveen/Documents/hrservice")
-from flask import Flask, jsonify, abort, json, make_response, request
+# sys.path.append("/Users/naveen/Documents/hrservice")
+from flask import Flask, jsonify, abort, json, make_response, request, render_template
 from mongoConnection import getClient
 import uuid
 import datetime
@@ -158,6 +158,10 @@ def getUserDetails(userid):
 	cursor = db['hrservice']
 	docs = cursor.users.find_one({"_id":ObjectId(userid)})
 	return docs
+
+@app.route('/')
+def main():
+	 return render_template('index.html')
 
 if __name__ == '__main__':
 	# getSession("jjfdjdhfgjfd763276")
