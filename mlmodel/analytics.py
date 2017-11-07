@@ -9,7 +9,7 @@ from config.configparser import getConfig
 
 def readData():
 	conf = getConfig()
-	data = pd.read_csv(conf.file_path)
+	data = pd.read_csv(conf.project_directory + '/mlmodel/HR_comma_sep.csv')
 	return data;
 
 def generateVisualisations():

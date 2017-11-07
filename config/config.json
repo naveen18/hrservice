@@ -1,4 +1,3 @@
 {
-	"file_path":"/Users/naveen/Documents/hrservice/mlmodel/HR_comma_sep.csv",
-	"mongo_path":"mongodb://127.0.0.1:27017"
+	"key":"val"
 }
