@@ -22,13 +22,17 @@ def getUser():
 	if not isValidSessionId(sessionid, userid):
 		response["message"] = "Your session has expired, Please login again"
 		response["code"] = httperrors.UNAUTHORIZED_ERROR
-		return jsonify(success = False, error = response)
+		resp = make_response(jsonify(success = False, error = response))
+		resp.headers['Access-Control-Allow-Origin'] = '*'
+		return resp
 	doc = getUserDetails(userid)
 	response["userid"] = str(doc["_id"])
 	response["sessionid"] = sessionid
 	response["firstname"] = doc["firstname"]
 	response["lastname"] = doc["lastname"]
-	return jsonify(success = True, data = response)
+	resp = make_response(jsonify(success = True, data = response))
+	resp.headers['Access-Control-Allow-Origin'] = '*'
+	return resp
 
 @app.route('/userservice/api/v1.0/user', methods=['PUT'])
 def createUser():
@@ -62,7 +66,10 @@ def login():
 	hashedPassword  = hashlib.sha224(bodyparam["password"].encode('utf-8')).hexdigest()
 	docs = cursor.users.find_one({"email":bodyparam["email"], "password":bodyparam["password"]})
 	if docs is None:
-		return jsonify(user_valid = False, message = "Invalid email or passord")
+		response = make_response(jsonify(success = False, message = "Invalid email or passord"))
+		response.headers['Access-Control-Allow-Origin'] = '*'
+		response.status = httperrors.UNAUTHORIZED_ERROR
+		return response
 	else:
 		sessionid = str(uuid.uuid4())
 		expire_date = datetime.datetime.now()
@@ -71,6 +78,7 @@ def login():
 		response = make_response(jsonify(success = True, sessionid = sessionid))
 		response.set_cookie("sessionid", sessionid, expires=expire_date)
 		response.set_cookie("userid", str(docs["_id"]), expires=expire_date)
+		response.headers['Access-Control-Allow-Origin'] = '*'
 		return response
 
 @app.route('/userservice/api/v1.0/session/<string:sessionid>', methods=['GET'])
@@ -148,7 +156,7 @@ def validateParams(body):
 def isValidSessionId(sessionid, userid):
 	db = getClient()
 	cursor = db['hrservice']
-	docs = cursor.session.find_one({"sessionid":sessionid, "userid":userid})
+	docs = cursor.session.find_one({"sessionid":sessionid, "userid":ObjectId(userid)})
 	if docs is None:
 		return False;
 	return True
@@ -162,6 +170,10 @@ def getUserDetails(userid):
 @app.route('/')
 def main():
 	 return render_template('index.html')
+
+@app.route('/home')
+def renderHomePage():
+	return render_template('home.html')
 
 if __name__ == '__main__':
 	# getSession("jjfdjdhfgjfd763276")
