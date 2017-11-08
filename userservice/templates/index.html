@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        function login() {
+            url = "http://localhost:5000/userservice/api/v1.0/user/login"
+            var data = {};
+            data.email = $("#username").val()
+            data.password  = $("#password").val()
+            var json = JSON.stringify(data);
+            var xhr = new XMLHttpRequest();
+            xhr.open("PUT", url, true);
+            xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+            xhr.onload = function () {
+                var users = JSON.parse(xhr.responseText);
+                if (xhr.readyState == 4 && xhr.status == "200") {
+                    console.log("login successfull")
+                    window.location = "http://localhost:5000/home";
+                } else {
+                    console.log("login failed")
+                    alert("Invalid username or password. Please login again")
+                    $("#username").val("");
+                    $("#password").val("");
+                }
+            }
+            xhr.send(json);
+        }
+    </script>
+    <label>User name</label>
+    <input type="text" name="usr" id = "username" value="nbansal1@umbc.edu"> 
+    <label>Password</label>
+    <input type="password" name="pword" id = "password" value="admin@123">
+    <input type="submit" value="Login" onclick="login()">
+</body>
+</html>
