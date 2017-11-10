@@ -15,7 +15,9 @@
             xhr.onload = function () {
                 var users = JSON.parse(xhr.responseText);
                 if (xhr.readyState == 4 && xhr.status == "200") {
-                    console.log("login successfull")
+                    // document.cookie = document.cookie + ";path=/";
+                    console.log("login successfull");
+                    setTimeout(routeCall(), 3000);
                     window.location = "http://localhost:5000/home";
                 } else {
                     console.log("login failed")
@@ -25,6 +27,10 @@
                 }
             }
             xhr.send(json);
+        }
+
+        function routeCall() {
+            window.location = "http://localhost:5000/home";
         }
     </script>
     <label>User name</label>

@@ -1,55 +1,125 @@
 <!DOCTYPE html>
 <html>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-<body onload="getData()">
-    <div id = "user"></div>
+<body onload="checkSession()">
+    <div id = "user">
+        <input type="submit" value="Logout" onclick="logout()">
+        <input type="submit" value="get pictures" onclick="getVisualizations()">
+    </div>
+    <div id="vis">
+    </div>
     <script type="text/javascript">
-        function getData() {
+        function getVisualizations() {
+            checkSession();
             sessionid = getCookie("sessionid");
-            userid = getCookie("userid");
-            if (sessionid === null || userid === null) {
-                alert("Your session expired please login again")
-                window.location = "http://127.0.0.1:5000";
-                return;
-            } else {
-                console.log("sessionid = " + sessionid);
-                console.log("userid = " + userid);
-            }
-            url = "http://127.0.0.1:5000/userservice/api/v1.0/user"
+            url = "http://127.0.0.1:5000/userservice/api/v1.0/visualizations/" + encodeURIComponent(sessionid);
             var xhr = new XMLHttpRequest();
             xhr.open("GET", url, true);
             xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
-            xhr.setRequestHeader('sessionid',sessionid);
-            xhr.setRequestHeader('userid',userid);
             xhr.onload = function () {
                 if (xhr.readyState == 4 && xhr.status == "200") {
-                    var users = JSON.parse(xhr.responseText);
-                    // render page here to display images
-                    // hit analytics endpoint to get images
-                    $("#user").val(xhr.responseText);
-                    console.log(users)
-                } else {
-                    alert("Your session expired please login again")
-                    window.location = "http://127.0.0.1:5000";
-                    return;
+                    var result = JSON.parse(xhr.responseText);
+                    console.log("getting getting visualizations");
+                    console.log(result);
+                    if (result["success"] == true) {
+                        // parese images and display
+                        console.log(result["images"]);
+                        renderImages(result["images"]);
+                    }
+                    else {
+                        console.log("exiting from here");
+                        // alert("Your session expired please login again");
+                        window.location = "http://127.0.0.1:5000";
+                    }
+                }
+            }
+            xhr.send();
+        }
+
+        function checkSession() {
+            console.log("in index");
+            sessionid = getCookie("sessionid");
+            userid = getCookie("userid");
+            console.log("user id is" + userid);
+            console.log("sessionid id is" + sessionid);
+            if (sessionid === null || userid === null) {
+                console.log("invalid session");
+                // alert("Your session expired please login again");
+                window.location = "http://127.0.0.1:5000";
+                return;
+            }
+            url = "http://127.0.0.1:5000/userservice/api/v1.0/session/" + encodeURIComponent(sessionid);
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+            xhr.onload = function () {
+                if (xhr.readyState == 4 && xhr.status == "200") {
+                    var result = JSON.parse(xhr.responseText);
+                    if (result["session_valid"] == true) {
+                        console.log("session is valid");
+                        //return true;
+                    }
+                    else {
+                        console.log("invalid session");
+                        // alert("Your session expired please login again");
+                        window.location = "http://127.0.0.1:5000";
+                    }
                 }
             }
             xhr.send();
         }
 
         function getCookie(name) {
-          if (document.cookie == 0) return null;
-          var cookieItems = document.cookie.split(";")
-          var dictionary = {};
-          for (i = 0; i < cookieItems.length; i++) {
-            cookieItems[i] = cookieItems[i].split("=");
-            dictionary[cookieItems[i][0].trim()] = cookieItems[i][1].trim();
+            if (document.cookie == 0) return null;
+            var cookieItems = document.cookie.split(";");
+            var dictionary = {};
+            for (i = 0; i < cookieItems.length; i++) {
+                cookieItems[i] = cookieItems[i].split("=");
+                dictionary[cookieItems[i][0].trim()] = cookieItems[i][1].trim();
+            }
+            if (!(name in dictionary)) {
+                return null;
+            }
+            return dictionary[name];
         }
-        if (!(name in dictionary)) {
-            return null;
+
+        function logout() {
+            checkSession();
+            sessionid = getCookie("sessionid");
+            userid = getCookie("userid");
+            var xhr = new XMLHttpRequest();
+            url = "http://localhost:5000/userservice/api/v1.0/user/logout"
+            xhr.open("PUT", url, true);
+            xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+            xhr.setRequestHeader('sessionid',sessionid);
+            xhr.setRequestHeader('userid',userid);
+            xhr.onload = function () {
+                if (xhr.readyState == 4 && xhr.status == "200") {
+                    var resp = JSON.parse(xhr.responseText);
+                    // deleteCookie("sessionid");
+                    // deleteCookie("userid");
+                    console.log(resp)
+                    console.log("logging out");
+                    window.location = "http://127.0.0.1:5000/";
+                } else {
+                    console.log("logout failed, try again");
+                }
+            }
+            xhr.send();
         }
-        return dictionary[name];
-    }
-</script>
+
+        function deleteCookie(name) {
+            document.cookie = name + '=;expires=Thu, 05 Oct 1990 00:00:01 GMT;';
+        }
+
+        function renderImages(images) {
+            console.log(images);
+            for (i = 0; i < images.length; i++) {
+                $("#vis").append("<img src=" + images[i] + "height=\"200\" width=\"200\">");
+            }
+        }
+
+    </script>
+    
 </body>
 </html>

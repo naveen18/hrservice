@@ -11,6 +11,7 @@ from bson.objectid import ObjectId
 import hashlib
 from mlmodel.model import predict
 from mlmodel.analytics import generateVisualisations
+from config.configparser import getConfig
 
 app = Flask(__name__)
 
@@ -30,6 +31,7 @@ def getUser():
 	response["sessionid"] = sessionid
 	response["firstname"] = doc["firstname"]
 	response["lastname"] = doc["lastname"]
+	response["email"] = doc["email"]
 	resp = make_response(jsonify(success = True, data = response))
 	resp.headers['Access-Control-Allow-Origin'] = '*'
 	return resp
@@ -81,15 +83,31 @@ def login():
 		response.headers['Access-Control-Allow-Origin'] = '*'
 		return response
 
+@app.route('/userservice/api/v1.0/user/logout', methods=['PUT'])
+def logout():
+	sessionid = request.headers.get("sessionid")
+	userid = request.headers.get("userid")
+	db = getClient()
+	cursor = db['hrservice']
+	doc  = cursor.session.delete_one({"sessionid":sessionid})
+	expire_date = datetime.datetime.now()
+	response = make_response(jsonify(success = "true"))
+	response.set_cookie("sessionid", "", expires=expire_date)
+	response.set_cookie("userid", "", expires=expire_date)
+	return response
+
 @app.route('/userservice/api/v1.0/session/<string:sessionid>', methods=['GET'])
 def getSession(sessionid):
 	db = getClient()
 	cursor = db['hrservice']
-	docs = cursor.session.find({"sessionid":sessionid})
-	for document in docs:
-		return jsonify(session_valid = True)
-	return jsonify(session_valid = False, message = "invalid session id")
-
+	docs = cursor.session.find_one({"sessionid":sessionid})
+	if docs is not None:
+		response = make_response(jsonify(session_valid = True))
+	else:
+		response = make_response(jsonify(session_valid = False, message = "invalid session id"))
+	response.headers['Access-Control-Allow-Origin'] = '*'
+	response.status = "200"
+	return response
 
 @app.route('/userservice/api/v1.0/visualizations/<string:sessionid>', methods=['GET'])
 def getAnalytics(sessionid):
@@ -97,11 +115,19 @@ def getAnalytics(sessionid):
 	res = json.loads(res.get_data())
 	if res['session_valid'] is False:
 		# redirect to login page
-		pass
+		return jsonify(success = False)
 	else:
 		generateVisualisations()
-	return jsonify(success = True)
-
+		conf = getConfig()
+		img1 = "https://i.imgur.com/7wneMEJ.png"
+		img2 = "https://i.imgur.com/3z7wNJO.png"
+		img3 = "https://i.imgur.com/5N1dCRs.png"
+		img4 = "https://i.imgur.com/5N1dCRs.png"
+		img5 = "https://i.imgur.com/9Cp5QcF.png"
+		img6 = "https://i.imgur.com/JedEXAb.png"
+		img7 = "https://i.imgur.com/oVWtbfG.png"
+		images = [img1, img2, img3, img4, img5, img6, img7]
+	return jsonify(success = True, images = images)
 
 @app.route('/userservice/api/v1.0/predict/<string:sessionid>', methods=['GET'])
 def getPredictionLabel(sessionid):
@@ -154,6 +180,8 @@ def validateParams(body):
 	return True
 
 def isValidSessionId(sessionid, userid):
+	if userid is None or sessionid is None:
+		return False
 	db = getClient()
 	cursor = db['hrservice']
 	docs = cursor.session.find_one({"sessionid":sessionid, "userid":ObjectId(userid)})
@@ -175,7 +203,15 @@ def main():
 def renderHomePage():
 	return render_template('home.html')
 
+@app.route('/about')
+def renderAboutPage():
+	return render_template('about.html')
+
+@app.route('/getlabel')
+def renderPredictionPage():
+	return render_template('predict.html')
+
 if __name__ == '__main__':
 	# getSession("jjfdjdhfgjfd763276")
 	# createSession("23", "kjdfhjshfwfhk")
-	app.run(debug=False)
+	app.run(threaded=True, debug=False)

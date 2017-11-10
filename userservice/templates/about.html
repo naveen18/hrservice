@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<body onload="getUserData()">
+    <div id = "div1"> <div>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script type="text/javascript">
+		function checkSession() {
+            console.log("in about");
+			sessionid = getCookie("sessionid");
+			userid = getCookie("userid");
+            console.log("user id is" + userid);
+            console.log("sessionid is" + sessionid);
+			if (sessionid === null || userid === null) {
+				console.log("invalid session");
+				alert("Your session expired please login again");
+				window.location = "http://127.0.0.1:5000";
+				return;
+			}
+			url = "http://127.0.0.1:5000/userservice/api/v1.0/session/" + encodeURIComponent(sessionid);
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", url, true);
+			xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+			xhr.onload = function () {
+				if (xhr.readyState == 4 && xhr.status == "200") {
+					var result = JSON.parse(xhr.responseText);
+					if (result["session_valid"] == true) {
+						console.log("session is valid");
+                    //return true;
+                }
+                else {
+                	console.log("invalid session");
+                	alert("Your session expired please login again");
+                	window.location = "http://127.0.0.1:5000";
+                }
+            }
+        }
+        xhr.send();
+    }
+
+    function getUserData() {
+    	sessionid = getCookie("sessionid");
+    	userid = getCookie("userid");
+    	checkSession();
+    	url = "http://127.0.0.1:5000/userservice/api/v1.0/user";
+    	var xhr = new XMLHttpRequest();
+    	xhr.open("GET", url, true);
+    	xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+    	xhr.setRequestHeader('sessionid',sessionid);
+    	xhr.setRequestHeader('userid',userid);
+    	xhr.onload = function () {
+    		if (xhr.readyState == 4 && xhr.status == "200") {
+    			var resp = JSON.parse(xhr.responseText);
+                // render page here to display images
+                // hit analytics endpoint to get images
+                $("#user").val(xhr.responseText);
+                $('#about').html(xhr.responseText);
+                renderUserDetails(resp["data"]);
+                console.log(resp);
+            } else {
+            	alert("Your session expired please login again")
+            	window.location = "http://127.0.0.1:5000";
+            	return;
+            }
+        }
+        xhr.send();
+    }
+
+    function getCookie(name) {
+    	if (document.cookie == 0) return null;
+    	var cookieItems = document.cookie.split(";");
+    	var dictionary = {};
+    	for (i = 0; i < cookieItems.length; i++) {
+    		cookieItems[i] = cookieItems[i].split("=");
+    		dictionary[cookieItems[i][0].trim()] = cookieItems[i][1].trim();
+    	}
+    	if (!(name in dictionary)) {
+    		return null;
+    	}
+    	return dictionary[name];
+    }
+
+    function renderUserDetails(data) {
+        console.log("came for rendering user details");
+        var tbl = $("<table/>").attr("id", "mytable");
+        var tr1 = "<tr><td>" + "Firstname" + "</td>" + "<td>" + data["firstname"] + "</td></tr>";
+        var tr2 = "<tr><td>" + "Lastname" + "</td>" + "<td>" + data["lastname"] + "</td></tr>";
+        var tr3 = "<tr><td>" + "Email" + "</td>" + "<td>" + data["email"] + "</td></tr>";
+        tbl.append(tr1);
+        tbl.append(tr2);
+        tbl.append(tr3);
+        $("#div1").html(tbl);
+    }
+
+</script>
+
+</body>
+</html>
