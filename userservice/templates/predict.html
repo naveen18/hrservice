@@ -1,5 +1,90 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Prediction Page</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script type="text/javascript">
+		function myFunction()
+		{
+			if ((document.getElementById('Satisfaction_level').value == '')||(document.getElementById('Last_Evaluation').value == '')||(document.getElementById('Satisfaction_level').value == '')||(document.getElementById('Satisfaction_level').value == '')||(document.getElementById('Satisfaction_level').value == '')||(document.getElementById('Number_project').value == '')||(document.getElementById('Average_Monthly_Hours').value == '')||(document.getElementById('Time_spend_company').value == '')||(document.getElementById('Work_accident').value == '')||(document.getElementById('Promotion_last_5years').value == '')||(document.getElementById('Sales').value == '')||(document.getElementById('Salary').value == '')||(document.getElementById('Left').value == ''))
+			{
+				alert("No field should be blank");
+				return false;
+			}
+			if ((document.getElementById('Work_accident').value != 0)|| (document.getElementById('Work_accident').value != 1))
+			{
+				alert("Work Accident must be binary value");
+			}
+		}
+	</script>
+</head>
 <body>
-	<img src="/Users/naveen/Documents/hrservice/mlmodel/visualizations/clusters.png">
+	<form onsubmit="myFunction() ">
+		<div class="container">
+			<h2 align="center">Input for Evaluation</h2>
+
+
+			<div class="form-group">
+				<label for="Satisfaction_level">Satisfaction_level:</label>
+				<input align="right" class="box" type="number" class="form-control" id="Satisfaction_level" placeholder="Enter Satisfaction_level" name="Satisfaction_level" autofocus>
+			</div>
+
+			<div class="form-group">
+				<label for="Last_evaluation">Last_evaluation:</label>
+				<input class="box" type="number" class="form-control" id="Last_Evaluation" placeholder="Enter Last Evaluation" name="Last_Evaluation" autofocus>
+			</div>
+
+			<div class="form-group">
+				<label for="Number_project">Number of Projects:</label>
+				<input class="box" type="number" class="form-control" id="Number_project" placeholder="Enter Number of Projects" name="Number_project" autofocus>
+			</div>
+
+			<div class="form-group">
+				<label for="Average Monthly Hours">Average Monthly Hours:</label>
+				<input class="box" type="number" class="form-control" id="Average_Monthly_Hours" placeholder="Enter Average Monthly Hours" name="Average Monthly Hours" autofocus>
+			</div>
+
+			<div class="form-group">
+				<label for="Time_spend_company">Time spent in the company:</label>
+				<input class="box" type="number" class="form-control" id="Time_spend_company" placeholder="Enter Time spent in company" name="Time_spend_company" autofocus>
+			</div>
+
+			<div class="form-group">
+				<label for="Work_accident">Work Accident (Enter either 0 or 1):</label>
+				<input class="box" type="number" class="form-control" id="Work_accident" placeholder="Work_accident" name="Work_accident" min="0" max="1" autofocus>
+			</div>
+
+			<div class="form-group">
+				<label for="Left">Left (Enter either 0 or 1):</label>
+				<input class="box" type="number" class="form-control" id="Left" placeholder="Left" name="Left" min="0" max="1" autofocus>
+			</div>
+
+
+			<div class="form-group">
+				<label for="Promotion_last_5years">Promtion in the last 5 years (Enter either 0 or 1):</label>
+				<input class="box" type="number" class="form-control" id="Promotion_last_5years" placeholder="Promotion_last_5years" name="Promotion_last_5years" min="0" max="1" autofocus>
+			</div>
+			<div class="form-group">
+				<label for="Sales">Sales:</label>
+				<input class="box" type="number" class="form-control" id="Sales" placeholder="Sales" name="Sales" autofocus>
+			</div>
+
+			<div class="form-group">
+				<label for="Salary">Select Salary range: </label>
+				<select>
+					<option value="volvo">Low</option>
+					<option value="saab">Medium</option>
+					<option value="opel">High</option>
+				</select>
+			</div>
+
+			<button type="submit" class="btn btn-default">Submit</button>
+		</form>
+	</div>
+
 </body>
 </html>

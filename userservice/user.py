@@ -211,6 +211,10 @@ def renderAboutPage():
 def renderPredictionPage():
 	return render_template('predict.html')
 
+@app.route('/signup')
+def renderSignupPage():
+	return render_template('signup.html')
+
 if __name__ == '__main__':
 	# getSession("jjfdjdhfgjfd763276")
 	# createSession("23", "kjdfhjshfwfhk")

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style type="text/css">
+	* {
+		box-sizing: border-box;
+	}
+
+	*:focus {
+		outline: none;
+	}
+	body {
+		font-family: Arial;
+		background-color: #3498DB;
+		padding: 50px;
+	}
+	.login {
+		margin: 20px auto;
+		width: 300px;
+	}
+	.login-screen {
+		background-color: #FFF;
+		padding: 20px;
+		border-radius: 5px
+	}
+
+	.app-title {
+		text-align: center;
+		color: #777;
+	}
+
+	.login-form {
+		text-align: center;
+	}
+	.control-group {
+		margin-bottom: 10px;
+	}
+
+	input {
+		text-align: center;
+		background-color: #ECF0F1;
+		border: 2px solid transparent;
+		border-radius: 3px;
+		font-size: 16px;
+		font-weight: 200;
+		padding: 10px 0;
+		width: 250px;
+		transition: border .5s;
+	}
+
+	input:focus {
+		border: 2px solid #3498DB;
+		box-shadow: none;
+	}
+
+	.btn {
+		border: 2px solid transparent;
+		background: #3498DB;
+		color: #ffffff;
+		font-size: 16px;
+		line-height: 25px;
+		padding: 10px 0;
+		text-decoration: none;
+		text-shadow: none;
+		border-radius: 3px;
+		box-shadow: none;
+		transition: 0.25s;
+		display: block;
+		width: 250px;
+		margin: 0 auto;
+	}
+
+	.btn:hover {
+		background-color: #2980B9;
+	}
+
+	.login-link {
+		font-size: 12px;
+		color: #444;
+		display: block;
+		margin-top: 12px;
+	}
+</style>
+</head>
+<body>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script type="text/javascript">
+		function signup() {
+            url = "http://localhost:5000/userservice/api/v1.0/user"
+            var data = {};
+            data.email = $("#username").val()
+            data.password  = $("#password").val()
+            data.firstname = $("#firstname").val()
+            data.lastname = $("#lastname").val()
+            if (!validateParams()) return;
+            var json = JSON.stringify(data);
+            var xhr = new XMLHttpRequest();
+            xhr.open("PUT", url, true);
+            xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+            xhr.onload = function () {
+                var users = JSON.parse(xhr.responseText);
+                if (xhr.readyState == 4 && xhr.status == "200") {
+                    console.log("signup successfull");
+                    alert("signup successfull, redirecting to login page");
+                    window.location = "http://localhost:5000/";
+                } else {
+                    console.log("signup failed");
+                    alert("signup failed, please try after sometime");
+                    $("#username").val("")
+            		$("#password").val("")
+            		$("#firstname").val("")
+            		$("#lastname").val("")
+                }
+            }
+            xhr.send(json);
+        }
+
+        function validateParams(){
+            email = $("#username").val()
+            password  = $("#password").val()
+            firstname = $("#firstname").val()
+            lastname = $("#lastname").val()
+
+            var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            if (firstname.length == 0) {
+                alert("firstname can't be empty");
+                return false;
+            }
+            if (lastname.length == 0) {
+                alert("lastname can't be empty");
+                return false;
+            }
+            if (!re.test(email)) {
+                alert("email is invalid");
+                return false;
+            }
+            if (password.length < 5) {
+                alert("password should have atleast five characters");
+                return false;
+            }
+            return true;
+        }
+	</script>
+	<div class="login">
+		<div class="login-screen">
+			<div class="app-title">
+				<h1>Signup</h1>
+			</div>
+			<div class="login-form">
+				<div class="control-group">
+					<input type="text" class="login-field" value="" placeholder="Firstname" name="firstname" id = "firstname">
+					<label class="login-field-icon fui-user" for="login-fname"></label>
+				</div>
+
+				<div class="control-group">
+					<input type="text" class="login-field" value="" placeholder="Lastname" name="lastname" id = "lastname">
+					<label class="login-field-icon fui-lock" for="login-lname"></label>
+				</div>
+				
+				<div class="control-group">
+					<input type="text" class="login-field" value="" placeholder="Username" name="username" id = "username">
+					<label class="login-field-icon fui-lock" for="login-uname"></label>
+				</div>
+				
+				<div class="control-group">
+					<input type="password" class="login-field" value="" placeholder="Password" name="password" id = "password">
+					<label class="login-field-icon fui-lock" for="login-passwd"></label>
+				</div>
+				<input type="submit" value="Sign up" class="btn btn-primary btn-large btn-block" onclick="signup()">
+				<br>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

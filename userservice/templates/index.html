@@ -1,5 +1,85 @@
 <!DOCTYPE html>
 <html>
+<style type="text/css">
+* {
+    box-sizing: border-box;
+}
+
+*:focus {
+    outline: none;
+}
+body {
+    font-family: Arial;
+    background-color: #3498DB;
+    padding: 50px;
+}
+.login {
+    margin: 20px auto;
+    width: 300px;
+}
+.login-screen {
+    background-color: #FFF;
+    padding: 20px;
+    border-radius: 5px
+}
+
+.app-title {
+    text-align: center;
+    color: #777;
+}
+
+.login-form {
+    text-align: center;
+}
+.control-group {
+    margin-bottom: 10px;
+}
+
+input {
+    text-align: center;
+    background-color: #ECF0F1;
+    border: 2px solid transparent;
+    border-radius: 3px;
+    font-size: 16px;
+    font-weight: 200;
+    padding: 10px 0;
+    width: 250px;
+    transition: border .5s;
+}
+
+input:focus {
+    border: 2px solid #3498DB;
+    box-shadow: none;
+}
+
+.btn {
+  border: 2px solid transparent;
+  background: #3498DB;
+  color: #ffffff;
+  font-size: 16px;
+  line-height: 25px;
+  padding: 10px 0;
+  text-decoration: none;
+  text-shadow: none;
+  border-radius: 3px;
+  box-shadow: none;
+  transition: 0.25s;
+  display: block;
+  width: 250px;
+  margin: 0 auto;
+}
+
+.btn:hover {
+  background-color: #2980B9;
+}
+
+.login-link {
+  font-size: 12px;
+  color: #444;
+  display: block;
+  margin-top: 12px;
+}
+</style>
 <body>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script type="text/javascript">
@@ -8,6 +88,7 @@
             var data = {};
             data.email = $("#username").val()
             data.password  = $("#password").val()
+            if (!validateParams()) return;
             var json = JSON.stringify(data);
             var xhr = new XMLHttpRequest();
             xhr.open("PUT", url, true);
@@ -22,8 +103,8 @@
                 } else {
                     console.log("login failed")
                     alert("Invalid username or password. Please login again")
-                    $("#username").val("");
-                    $("#password").val("");
+                    $("#username").val("")
+                    $("#password").val("")
                 }
             }
             xhr.send(json);
@@ -32,11 +113,43 @@
         function routeCall() {
             window.location = "http://localhost:5000/home";
         }
+
+        function validateParams(){
+            email = $("#username").val()
+            password  = $("#password").val()
+            var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            if (!re.test(email)) {
+                alert("email is invalid");
+                return false;
+            }
+            if (password.length < 5) {
+                alert("password should have atleast five characters");
+                return false;
+            }
+            return true;
+        }
+
     </script>
-    <label>User name</label>
-    <input type="text" name="usr" id = "username" value="nbansal1@umbc.edu"> 
-    <label>Password</label>
-    <input type="password" name="pword" id = "password" value="admin@123">
-    <input type="submit" value="Login" onclick="login()">
+    <h1 align="center">HR Prediction </h1> 
+    <div class="login">
+        <div class="login-screen">
+            <div class="app-title">
+                <h1>Login</h1>
+            </div>
+            <div class="login-form">
+                <div class="control-group">
+                    <input type="text" class="login-field" value="" placeholder="email" name="username" id = "username">
+                    <label class="login-field-icon fui-user" for="login-name"></label>
+                </div>
+                <div class="control-group">
+                    <input type="password" class="login-field" value="" placeholder="password" name="password" id = "password">
+                    <label class="login-field-icon fui-lock" for="login-pass"></label>
+                </div>
+                <input type="submit" value="Log in" class="btn btn-primary btn-large btn-block" onclick="login()">
+                <div id="submit"> <a href="http://localhost:5000/signup">Sign up</a></div>
+                <br>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
