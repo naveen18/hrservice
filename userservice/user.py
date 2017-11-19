@@ -117,7 +117,7 @@ def getAnalytics(sessionid):
 		# redirect to login page
 		return jsonify(success = False)
 	else:
-		generateVisualisations()
+		# generateVisualisations()
 		conf = getConfig()
 		img1 = "https://i.imgur.com/7wneMEJ.png"
 		img2 = "https://i.imgur.com/3z7wNJO.png"

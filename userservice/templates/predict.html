@@ -1,90 +1,245 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<title>Prediction Page</title>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-	<script type="text/javascript">
-		function myFunction()
-		{
-			if ((document.getElementById('Satisfaction_level').value == '')||(document.getElementById('Last_Evaluation').value == '')||(document.getElementById('Satisfaction_level').value == '')||(document.getElementById('Satisfaction_level').value == '')||(document.getElementById('Satisfaction_level').value == '')||(document.getElementById('Number_project').value == '')||(document.getElementById('Average_Monthly_Hours').value == '')||(document.getElementById('Time_spend_company').value == '')||(document.getElementById('Work_accident').value == '')||(document.getElementById('Promotion_last_5years').value == '')||(document.getElementById('Sales').value == '')||(document.getElementById('Salary').value == '')||(document.getElementById('Left').value == ''))
-			{
-				alert("No field should be blank");
-				return false;
-			}
-			if ((document.getElementById('Work_accident').value != 0)|| (document.getElementById('Work_accident').value != 1))
-			{
-				alert("Work Accident must be binary value");
-			}
-		}
-	</script>
-</head>
+<link rel="stylesheet" href="../static/style/predict.css">
+<title>Predict employee resignation</title>
 <body>
-	<form onsubmit="myFunction() ">
-		<div class="container">
-			<h2 align="center">Input for Evaluation</h2>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script type="text/javascript">
+		function getCookie(name) {
+			if (document.cookie == 0) return null;
+			var cookieItems = document.cookie.split(";");
+			var dictionary = {};
+			for (i = 0; i < cookieItems.length; i++) {
+				cookieItems[i] = cookieItems[i].split("=");
+				dictionary[cookieItems[i][0].trim()] = cookieItems[i][1].trim();
+			}
+			if (!(name in dictionary)) {
+				return null;
+			}
+			return dictionary[name];
+		}
 
 
-			<div class="form-group">
-				<label for="Satisfaction_level">Satisfaction_level:</label>
-				<input align="right" class="box" type="number" class="form-control" id="Satisfaction_level" placeholder="Enter Satisfaction_level" name="Satisfaction_level" autofocus>
+		function getLabel() {
+			checkSession();
+			sessionid = getCookie("sessionid");
+			url = "http://127.0.0.1:5000/userservice/api/v1.0/predict/" + sessionid + "?";
+			data = {};
+			data["satisfaction_level"] = parseInt($("#sl").val(), 10);
+			data["last_evaluation"] = parseInt($("#le").val(), 10);
+			data["number_project"] = parseInt($("#nop").val(), 10);
+			data["average_montly_hours"] = parseInt($("#amh").val(), 10);
+			data["time_spend_company"] = parseInt($("#tsp").val(), 10);
+			data["Work_accident"] = parseInt($("#wa").val(), 10);
+			data["promotion_last_5years"] = parseInt($("#pc").val(), 10);
+			data["sales"] = $("#dept").val();
+			data["salary"] = $("#salary").val();
+			console.log(data);
+			if (!validateParams(data)) return;
+            // normalize satisfaction and evaluation to get in 0 to 1 range
+            data["satisfaction_level"] = data["satisfaction_level"]/100;
+            data["last_evaluation"] = data["last_evaluation"]/100;
+            console.log(data);
+			params = encodeQueryData(data);
+			console.log(url + params)
+			url = url + params;
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", url, true);
+			xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+			xhr.onload = function () {
+				if (xhr.readyState == 4 && xhr.status == "200") {
+					var result = JSON.parse(xhr.responseText);
+					if (result["success"] == true) {
+						if (result["left"] == "1") {
+							alert("employee is likely to leave");
+							// $("#emp-label").text("Employee is not likely to leave").fadeIn()
+						}
+						else{
+							alert("employee is not likely to leave");
+							// $("#emp-label").text("Employee is not likely to leave").fadeIn()
+						}
+                    }
+                    else {
+						$("#error-messages").text("Could not reach the prediction api").fadeIn();
+                    }
+                }
+            }
+            xhr.send();
+        }
+
+        function encodeQueryData(data) {
+        	let ret = [];
+        	for (let d in data)
+        		ret.push(encodeURIComponent(d) + '=' + encodeURIComponent(data[d]));
+        	return ret.join('&');
+        }
+
+        function validateParams(data){
+            $("#error-messages").text("").fadeOut();
+            console.log("came to validate params for prediction form");
+            numbers_key = ["satisfaction_level", "last_evaluation", "number_project", "average_montly_hours", "time_spend_company", "promotion_last_5years"];
+            for(var key in numbers_key){
+                if (isNaN(data[numbers_key[key]])) {
+                    // console.log(key, numbers_key[key], data[numbers_key[key]]);
+                    $("#error-messages").text("*" + numbers_key[key] + " feild should be a number").fadeIn();
+                    return false;
+                }
+            }
+            if (data["satisfaction_level"] < 0 || data["satisfaction_level"] > 100) {
+                console.log("satisfaction_level is not valid")
+                $("#error-messages").text("*Satisfaction level should be between 0 to 100").fadeIn();
+                return false;
+            }
+            if (data["last_evaluation"] < 0 || data["last_evaluation"] > 100) {
+                $("#error-messages").text("*Last evaluation should be between 0 to 100").fadeIn();
+                return false;
+            }
+            if (data["number_project"] < 0) {
+                $("#error-messages").text("*Number of projects can not be negitive").fadeIn();
+                return false;
+            }
+            if (data["average_montly_hours"] < 0) {
+                $("#error-messages").text("*Average montly hours can not be negitive").fadeIn();
+                return false;
+            }
+
+            if (data["time_spend_company"] < 0) {
+                $("#error-messages").text("*Time spend in company can not be negitive").fadeIn();
+                return false;
+            }
+            if (data["Work_accident"] != 0 && data["Work_accident"] != 1) {
+                $("#error-messages").text("*Work accident should be either Yes or No").fadeIn();
+                return false;
+            }
+
+            if (data["promotion_last_5years"] < 0) {
+                $("#error-messages").text("*promotion_last_5 years should be greater than 0").fadeIn();
+                return false;
+            }
+
+            return true;
+        }
+
+
+        function checkSession() {
+            console.log("in index");
+            sessionid = getCookie("sessionid");
+            userid = getCookie("userid");
+            console.log("user id is" + userid);
+            console.log("sessionid id is" + sessionid);
+            if (sessionid === null || userid === null) {
+                console.log("invalid session");
+                // alert("Your session expired please login again");
+                window.location = "http://127.0.0.1:5000";
+                return;
+            }
+            url = "http://127.0.0.1:5000/userservice/api/v1.0/session/" + encodeURIComponent(sessionid);
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+            xhr.onload = function () {
+                if (xhr.readyState == 4 && xhr.status == "200") {
+                    var result = JSON.parse(xhr.responseText);
+                    if (result["session_valid"] == true) {
+                        console.log("session is valid");
+                        //return true;
+                    }
+                    else {
+                        console.log("invalid session");
+                        // alert("Your session expired please login again");
+                        window.location = "http://127.0.0.1:5000";
+                    }
+                }
+            }
+            xhr.send();
+        }
+
+
+    </script>
+    <div id="emp-label"></div>
+    <div class="login">
+    	<div class="login-screen">
+    		<div class="app-title">
+    			<h1>Input for Evaluation</h1>
+    		</div>
+
+    		<div class="login-form">
+                <div id="error-messages" style="color:red;margin:20px;"></div>
+    			<div class="control-group">
+    				<label for="Satisfaction_level">Satisfaction level(between 0 and 100):</label>
+    				<input type="text" required class="login-field" value="" placeholder="Satisfaction_level" name="sl" id ="sl">
+    				<label class="login-field-icon fui-user" for="login-name"></label>
+    			</div>
+
+    			<div class="control-group">
+    				<label for="Last_evaluation">Last evaluation(between 0 and 100):</label>
+    				<input type="text" required class="login-field" value="" placeholder="Last_evaluation" name="le" id = "le"> 
+    				<label class="login-field-icon fui-lock" for="login-pass"></label>
+    			</div>
+
+    			<div class="control-group">
+    				<label for="Number_project">Number of Projects:</label>
+    				<input class="box" type="number" required class="form-control" placeholder="Number of Projects" name="nop" id = "nop" >
+    				<label class="login-field-icon fui-lock" for="login-pass"></label>
+    			</div>
+
+    			<div class="control-group">
+    				<label for="Average Monthly Hours">Average Monthly Hours:</label>
+    				<input type="number" required class="login-field" value="" placeholder="Average Monthly Hours" name="amh" id = "amh">
+    				<label class="login-field-icon fui-lock" for="login-pass"></label>
+    			</div>
+
+    			<div class="control-group">
+    				<label for="Time-spent">Time spent in the company:</label>
+    				<input class="box" type="number"required class="form-control" placeholder="Time spent in the company" name="Last_Evaluation" id = "tsp">
+    				<label class="login-field-icon fui-lock" for="login-pass"></label>
+    			</div>
+
+    			<div class="control-group">
+    				<label for="Work_Accident">Had Work Accident?:</label>
+    				<!-- <input type="number" required class="login-field" value="" placeholder="Work Accident" name="wa" id = "wa"> -->
+                    <select class="login-field" id = "wa">
+                        <option value=0>No</option>
+                        <option value=1>Yes</option>
+                    </select>
+    				<label class="login-field-icon fui-lock" for="login-pass"></label>
+    			</div>
+
+    			<div class="control-group">
+    				<label for="Promotion_count">Promotion in the last 5 years:</label>
+    				<input type="number" required class="login-field" value="" placeholder="Promtion in the last 5 years" name="pc" id = "pc">
+    				<label class="login-field-icon fui-lock" for="login-pass"></label>
+    			</div>
+
+    			<div class="control-group">
+    				<label for="Department">Department:</label>
+    				<select class="login-field" id = "dept">
+    					<option value="product_mng">Product Management</option>
+    					<option value="marketing">Marketing</option>
+    					<option value="technical">Technical</option>
+    					<option value="sales">Sales</option>
+    					<option value="hr">Human Resources</option>
+    					<option value="IT">Information Technology</option>
+    					<option value="accounting">Accounting</option>
+    					<option value="management">Management</option>
+    					<option value="support">Support</option>
+    					<option value="RandD">Other</option>
+    				</select>
+    				<label class="login-field-icon fui-lock" for="login-pass"></label>
+    			</div>
+
+    			<div class="control-group">
+    				<label for="Salary">Select Salary range:</label> 
+    				<select class="login-field" id = "salary">
+    					<option value="low">Low</option>
+    					<option value="medium">Medium</option>
+    					<option value="high">High</option>
+    				</select>
+    				<label class="login-field-icon fui-lock" ></label>
+				</div>
+
+				<input type="submit" value="Submit" class="btn btn-primary btn-large btn-block" onclick="getLabel()">
+				<br>
 			</div>
-
-			<div class="form-group">
-				<label for="Last_evaluation">Last_evaluation:</label>
-				<input class="box" type="number" class="form-control" id="Last_Evaluation" placeholder="Enter Last Evaluation" name="Last_Evaluation" autofocus>
-			</div>
-
-			<div class="form-group">
-				<label for="Number_project">Number of Projects:</label>
-				<input class="box" type="number" class="form-control" id="Number_project" placeholder="Enter Number of Projects" name="Number_project" autofocus>
-			</div>
-
-			<div class="form-group">
-				<label for="Average Monthly Hours">Average Monthly Hours:</label>
-				<input class="box" type="number" class="form-control" id="Average_Monthly_Hours" placeholder="Enter Average Monthly Hours" name="Average Monthly Hours" autofocus>
-			</div>
-
-			<div class="form-group">
-				<label for="Time_spend_company">Time spent in the company:</label>
-				<input class="box" type="number" class="form-control" id="Time_spend_company" placeholder="Enter Time spent in company" name="Time_spend_company" autofocus>
-			</div>
-
-			<div class="form-group">
-				<label for="Work_accident">Work Accident (Enter either 0 or 1):</label>
-				<input class="box" type="number" class="form-control" id="Work_accident" placeholder="Work_accident" name="Work_accident" min="0" max="1" autofocus>
-			</div>
-
-			<div class="form-group">
-				<label for="Left">Left (Enter either 0 or 1):</label>
-				<input class="box" type="number" class="form-control" id="Left" placeholder="Left" name="Left" min="0" max="1" autofocus>
-			</div>
-
-
-			<div class="form-group">
-				<label for="Promotion_last_5years">Promtion in the last 5 years (Enter either 0 or 1):</label>
-				<input class="box" type="number" class="form-control" id="Promotion_last_5years" placeholder="Promotion_last_5years" name="Promotion_last_5years" min="0" max="1" autofocus>
-			</div>
-			<div class="form-group">
-				<label for="Sales">Sales:</label>
-				<input class="box" type="number" class="form-control" id="Sales" placeholder="Sales" name="Sales" autofocus>
-			</div>
-
-			<div class="form-group">
-				<label for="Salary">Select Salary range: </label>
-				<select>
-					<option value="volvo">Low</option>
-					<option value="saab">Medium</option>
-					<option value="opel">High</option>
-				</select>
-			</div>
-
-			<button type="submit" class="btn btn-default">Submit</button>
-		</form>
+		</div>
 	</div>
-
 </body>
 </html>

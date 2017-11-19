@@ -1,13 +1,103 @@
 <!DOCTYPE html>
 <html>
+<style type="text/css">
+    #mytable {
+        font-size: x-large;
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        margin-left: 200px;
+        margin-top: 30px;
+        width: 100%;
+    }
+    #mytd, #myth {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    #mytr:nth-child(even) {
+        background-color: #dddddd;
+    }
+    #myimg {
+        float: center;
+        margin: 20px;
+    }
+    #dp{
+        margin-left: 400px;
+    }
+</style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <body onload="checkSession()">
-    <div id = "user">
-        <input type="submit" value="Logout" onclick="logout()">
-        <input type="submit" value="get pictures" onclick="getVisualizations()">
-    </div>
-    <div id="vis">
-    </div>
+        <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+        <title>Hr service home</title>
+
+         <!-- Bootstrap CSS CDN -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <!-- Our Custom CSS -->
+        <link rel="stylesheet" href="../static/style/home.css">
+    </head>
+    <body>
+        <div class="wrapper">
+            <!-- Sidebar Holder -->
+            <nav id="sidebar">
+                <div class="sidebar-header">
+                    <h3>Welcome</h3>
+                </div>
+
+                <ul class="list-unstyled components">
+                    <li>
+                        <a href="#" onclick="getUserData()">About</a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="openInNewTab('/getlabel')">Predict</a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="getVisualizations()">Visualizations</a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="logout()">Logout</a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Page Content Holder -->
+            <div id="content">
+                <nav class="navbar navbar-default">
+                    <div class="container-fluid">
+                        <div class="navbar-header">
+                            <button type="button" id="sidebarCollapse" class="navbar-btn">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </button>
+                        </div>
+                    </div>
+                </nav>
+                    <div id="vis"></div>
+                    <div id="dp"></div> 
+                    <div id="about" ></div>
+            </div>
+        </div>
+
+        <!-- jQuery CDN -->
+         <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+         <!-- Bootstrap Js CDN -->
+         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+         <script type="text/javascript">
+             $(document).ready(function () {
+                 $('#sidebarCollapse').on('click', function () {
+                     $('#sidebar').toggleClass('active');
+                     $(this).toggleClass('active');
+                 });
+             });
+         </script>
+
+
     <script type="text/javascript">
         function getVisualizations() {
             checkSession();
@@ -69,6 +159,11 @@
             xhr.send();
         }
 
+        function openInNewTab(url) {
+            var win = window.open(url, '_blank');
+            win.focus();
+        }
+
         function getCookie(name) {
             if (document.cookie == 0) return null;
             var cookieItems = document.cookie.split(";");
@@ -114,10 +209,61 @@
 
         function renderImages(images) {
             console.log(images);
+            $("#about").empty().fadeOut();
+            $("#dp").empty().fadeOut();
+            $("#vis").empty().fadeIn();
             for (i = 0; i < images.length; i++) {
-                $("#vis").append("<img src=" + images[i] + "height=\"200\" width=\"200\">");
+                $("#vis").append("<img src=" + images[i] + "height=\"500\" width=\"500\" id=\"myimg\">");
             }
         }
+
+        function getUserData() {
+            sessionid = getCookie("sessionid");
+            userid = getCookie("userid");
+            checkSession();
+            url = "http://127.0.0.1:5000/userservice/api/v1.0/user";
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
+            xhr.setRequestHeader('sessionid',sessionid);
+            xhr.setRequestHeader('userid',userid);
+            xhr.onload = function () {
+                if (xhr.readyState == 4 && xhr.status == "200") {
+                    var resp = JSON.parse(xhr.responseText);
+                    // render page here to display images
+                    // hit analytics endpoint to get images
+                    // $("#user").val(xhr.responseText);
+                    // $('#about').html(xhr.responseText);
+                    showUserDetails(resp["data"]);
+                    console.log(resp);
+                } else {
+                    alert("Your session expired please login again")
+                    window.location = "http://127.0.0.1:5000";
+                    return;
+                }
+            }
+            xhr.send();
+        }
+
+        function showUserDetails(data){
+            console.log("came for rendering user details");
+            url = "https://kooledge.com/assets/default_medium_avatar-57d58da4fc778fbd688dcbc4cbc47e14ac79839a9801187e42a796cbd6569847.png";
+            var htm = $("<img src=" + "\"" + url + "\"" + "height=\"150\" width=\"150\" id = \"avatar\">");
+            var tbl = $("<table/>").attr("id", "mytable");
+            var tr1 = "<tr id = \"mytr\"><td id = \"mytd\">" + "Firstname" + "</td>" + "<td id = \"mytd\">" + data["firstname"] + "</td></tr>";
+            var tr2 = "<tr id = \"mytr\"><td id = \"mytd\">" + "Lastname" + "</td>" + "<td id = \"mytd\">" + data["lastname"] + "</td></tr>";
+            var tr3 = "<tr id = \"mytr\"><td id = \"mytd\">" + "Email" + "</td>" + "<td id = \"mytd\">" + data["email"] + "</td></tr>";
+            tbl.append(tr1);
+            tbl.append(tr2);
+            tbl.append(tr3);
+            $("#vis").empty().fadeOut();
+            $("#about").empty().fadeIn();
+            $("#dp").empty().fadeIn();
+
+            $("#dp").append(htm)
+            $("#about").html(tbl);
+        }
+
     </script>
     
 </body>

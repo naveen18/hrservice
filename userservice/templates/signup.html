@@ -80,7 +80,14 @@
 		display: block;
 		margin-top: 12px;
 	}
+	
+	.error-messages {
+    	text-align: center;
+    	color: orange;
+    	margin: 10px;
+	}
 </style>
+<title>Hr service signup</title>
 </head>
 <body>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
@@ -123,24 +130,26 @@
 
             var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
             if (firstname.length == 0) {
-                alert("firstname can't be empty");
+            	$(".error-messages").text("*firstname can't be empty").fadeIn();
                 return false;
             }
             if (lastname.length == 0) {
-                alert("lastname can't be empty");
+            	$(".error-messages").text("*lastname can't be empty").fadeIn();
                 return false;
             }
             if (!re.test(email)) {
-                alert("email is invalid");
+            	$(".error-messages").text("*email is invalid").fadeIn();
                 return false;
             }
             if (password.length < 5) {
-                alert("password should have atleast five characters");
+            	$(".error-messages").text("*password should have atleast five characters").fadeIn();
                 return false;
             }
+             $(".error-messages").empty().fadeOut();
             return true;
         }
 	</script>
+	<div class="error-messages"></div>
 	<div class="login">
 		<div class="login-screen">
 			<div class="app-title">
