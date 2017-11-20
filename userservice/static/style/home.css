@@ -3,6 +3,38 @@
 */
 @import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
 
+/*
+Custom style for my table
+*/
+
+#mytable {
+    font-size: x-large;
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    margin-left: 200px;
+    margin-top: 30px;
+    width: 100%;
+}
+#mytd, #myth {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+#mytr:nth-child(even) {
+    background-color: #dddddd;
+}
+#myimg {
+    float: center;
+    margin: 20px;
+}
+#dp{
+    margin-left: 400px;
+}
+
+/*
+Custom style for my table over
+*/
 
 body {
     font-family: 'Poppins', sans-serif;
