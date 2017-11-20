@@ -326,7 +326,7 @@
 // signup.html functions##################################################################################
 
     function signup() {
-        url = "http://localhost:5000/userservice/api/v1.0/user"
+        url = host + "/userservice/api/v1.0/user"
         var data = {};
         data.email = $("#username").val()
         data.password  = $("#password").val()
@@ -342,7 +342,7 @@
             if (xhr.readyState == 4 && xhr.status == "200") {
                 console.log("signup successfull");
                 alert("signup successfull, redirecting to login page");
-                window.location = "http://localhost:5000/";
+                window.location = host;
             } else {
                 console.log("signup failed");
                 alert("signup failed, please try after sometime");
@@ -382,6 +382,9 @@
         return true;
     }
 
+    function routeToSignupPage() {
+        window.location = host + "/signup";
+    }
 
 
 
