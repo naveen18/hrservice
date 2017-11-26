@@ -14,8 +14,9 @@ def readData():
 
 def generateVisualisations():
 	print("generating visualization")
+	plt.switch_backend('agg')
 	conf = getConfig()
-	image_dir = conf.project_directory + "/mlmodel/visualizations/"
+	image_dir = conf.project_directory + "/userservice/static/images/"
 	data = readData()
 	corr = data.corr()
 	sns.heatmap(corr, xticklabels=corr.columns.values, yticklabels=corr.columns.values, cmap=sns.diverging_palette(220, 10, as_cmap=True))

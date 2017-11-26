@@ -117,15 +117,15 @@ def getAnalytics(sessionid):
 		# redirect to login page
 		return jsonify(success = False)
 	else:
-		# generateVisualisations()
+		generateVisualisations()
 		conf = getConfig()
-		img1 = "https://i.imgur.com/7wneMEJ.png"
-		img2 = "https://i.imgur.com/3z7wNJO.png"
-		img3 = "https://i.imgur.com/5N1dCRs.png"
-		img4 = "https://i.imgur.com/5N1dCRs.png"
-		img5 = "https://i.imgur.com/9Cp5QcF.png"
-		img6 = "https://i.imgur.com/JedEXAb.png"
-		img7 = "https://i.imgur.com/oVWtbfG.png"
+		img1 = "static/images/distributions1.png"
+		img2 = "static/images/distributions2.png"
+		img3 = "static/images/distributions3.png"
+		img4 = "static/images/distributions4.png"
+		img5 = "static/images/distributions5.png"
+		img6 = "static/images/clusters.png"
+		img7 = "static/images/correlation.png"
 		images = [img1, img2, img3, img4, img5, img6, img7]
 	return jsonify(success = True, images = images)
 

@@ -168,11 +168,13 @@
 
     function renderImages(images) {
         console.log(images);
+        heights = [250, 250, 250, 300, 400, 400, 400];
+        widths = [500, 600, 500, 500, 500, 500, 500];
         $("#about").empty().fadeOut();
         $("#dp").empty().fadeOut();
         $("#vis").empty().fadeIn();
         for (i = 0; i < images.length; i++) {
-            $("#vis").append("<img src=" + images[i] + "height=\"500\" width=\"500\" id=\"myimg\">");
+            $("#vis").append("<img src=" + "../" + images[i] + " height=\"" + heights[i] + "\"" + " width=\"" + widths[i] + "\" id=\"myimg\">");
         }
     }
 
