@@ -18,7 +18,8 @@ class Config:
 		self.mongo_shard[1] = config["mongo-shard-1"]
 		self.mongo_shard[2] = config["mongo-shard-2"]
 		self.mongo_replica = config["mongo-replica"]
-
+		self.port = config["port"]
+		self.host = config["host"]
 
 def getConfig():
 	global config

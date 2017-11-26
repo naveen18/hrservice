@@ -218,4 +218,5 @@ def renderSignupPage():
 if __name__ == '__main__':
 	# getSession("jjfdjdhfgjfd763276")
 	# createSession("23", "kjdfhjshfwfhk")
-	app.run(threaded=True, debug=False)
+	conf = getConfig()
+	app.run(host = conf.host, port = conf.port, threaded=True, debug=False)

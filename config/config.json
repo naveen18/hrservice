@@ -3,5 +3,7 @@
 	"mongo-shard-0":"hr-service-project-shard-00-00-wbdm0.mongodb.net:27017",
 	"mongo-shard-1":"hr-service-project-shard-00-01-wbdm0.mongodb.net:27017",
 	"mongo-shard-2":"hr-service-project-shard-00-02-wbdm0.mongodb.net:27017",
-	"mongo-replica":"hr-service-project-shard-0"
+	"mongo-replica":"hr-service-project-shard-0",
+	"port":"5000",
+	"host":"0.0.0.0"
 }
